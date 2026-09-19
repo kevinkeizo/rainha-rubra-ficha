@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light">
+  <meta name="robots" content="noindex">
   <meta name="theme-color" content="#7a1d16">
   <title>Ficha do Tripa Seca — Rainha Rubra</title>
   <meta name="description" content="Ficha editável de personagem da campanha Rainha Rubra. Feita para usar no celular.">
@@ -71,7 +72,7 @@
     <section class="tools" aria-label="Ferramentas da ficha">
       <p class="tools-note">
         A ficha é salva automaticamente <strong>neste aparelho</strong>.
-        Para levar para outro celular ou guardar uma cópia, use Exportar.
+        Para levar para outro celular ou guardar uma cópia, use Exportar. Depois de abrir uma vez com internet, a ficha também abre sem sinal.
       </p>
       <div class="tools-btns">
         <button type="button" id="btn-export" class="btn primary">Exportar cópia</button>
@@ -79,6 +80,7 @@
         <button type="button" id="btn-print" class="btn">Imprimir / PDF</button>
         <button type="button" id="btn-default" class="btn">Restaurar Tripa Seca</button>
         <button type="button" id="btn-blank" class="btn danger">Ficha em branco</button>
+        <button type="button" id="btn-undo" class="btn" hidden>Desfazer última troca</button>
       </div>
       <input type="file" id="file-import" accept="application/json,.json" hidden>
     </section>

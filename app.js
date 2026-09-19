@@ -2,6 +2,7 @@
   'use strict';
 
   const STORAGE_KEY = 'rainha-rubra:ficha:v1';
+  const BACKUP_KEY = 'rainha-rubra:ficha:anterior';
   const EXPORT_TAG = 'rainha-rubra-ficha';
 
   // ---------- estrutura da ficha ----------
@@ -149,7 +150,12 @@
         <span class="lbl">${nome}</span>
         <button type="button" class="dado" data-rolar="${k}" aria-label="Rolar d20 + ${nome}">d20</button>
         <input data-k="${k}" type="number" autocomplete="off" aria-label="${nome}">
-      </div>`).join('')}
+      </div>`).join('')}`);
+
+    const statusSec = secao('c-sta', 3, 'Status', `
+      ${status('vida', 'Vida')}
+      ${status('defesa', 'Defesa')}
+      ${status('mana', 'Mana')}
       <div class="ataque">
         <h3>Ataque e dano</h3>
         <div class="atq-linha">
@@ -177,11 +183,6 @@
           <button type="button" class="btn mini" data-acao="d20">d20 puro</button>
         </div>
       </div>`);
-
-    const statusSec = secao('c-sta', 3, 'Status', `
-      ${status('vida', 'Vida')}
-      ${status('defesa', 'Defesa')}
-      ${status('mana', 'Mana')}`);
 
     const estilos = secao('c-est', 4, 'Estilos de Jogo', `
       <div class="estilos">
@@ -250,7 +251,11 @@
     const limpo = {};
     if (obj && typeof obj === 'object') {
       for (const [k, v] of Object.entries(obj)) {
-        if (['string', 'number', 'boolean'].includes(typeof v)) limpo[k] = String(v);
+        if (!['string', 'number', 'boolean'].includes(typeof v)) continue;
+        const txt = String(v);
+        // a foto só pode ser a padrão, vazia ou uma imagem embutida (nunca uma URL externa)
+        if (k === 'foto' && txt && txt !== FOTO_PADRAO && !txt.startsWith('data:image/')) continue;
+        limpo[k] = txt;
       }
     }
     return limpo;
@@ -499,7 +504,9 @@
         const dados = json && json.app === EXPORT_TAG ? json.dados : json;
         const novo = sanitizar(dados);
         if (!Object.keys(novo).length) throw new Error('vazio');
+        if (!('foto' in novo)) novo.foto = ''; // cópia sem foto não herda a do Tripa Seca
         if (!confirm('Importar esta cópia vai substituir a ficha atual. Continuar?')) return;
+        guardarAnterior();
         state = novo;
         aplicar();
         salvarAgora();
@@ -510,8 +517,28 @@
     leitor.readAsText(arquivo);
   }
 
+  // guarda a ficha atual antes de trocá-la, para dar para desfazer
+  function guardarAnterior() {
+    try {
+      localStorage.setItem(BACKUP_KEY, JSON.stringify(state));
+      $('#btn-undo').hidden = false;
+    } catch (_) { /* sem espaço: segue sem backup */ }
+  }
+
+  function desfazerTroca() {
+    let anterior;
+    try { anterior = sanitizar(JSON.parse(localStorage.getItem(BACKUP_KEY))); } catch (_) { return; }
+    if (!Object.keys(anterior).length) return;
+    if (!confirm('Voltar para a ficha de antes da última troca? A ficha de agora fica guardada, então dá para desfazer de novo.')) return;
+    guardarAnterior();
+    state = anterior;
+    aplicar();
+    salvarAgora();
+  }
+
   function substituir(novoEstado, pergunta) {
     if (!confirm(pergunta)) return;
+    guardarAnterior();
     state = novoEstado;
     aplicar();
     salvarAgora();
@@ -578,6 +605,8 @@
   });
   rolagemEl.addEventListener('click', () => { rolagemEl.hidden = true; });
 
+  $('#btn-undo').hidden = !localStorage.getItem(BACKUP_KEY);
+  $('#btn-undo').addEventListener('click', desfazerTroca);
   $('#btn-export').addEventListener('click', exportar);
   $('#btn-import').addEventListener('click', () => $('#file-import').click());
   $('#file-import').addEventListener('change', (e) => {
@@ -590,4 +619,8 @@
     substituir({ ...TRIPA_SECA }, 'Voltar para a ficha original do Tripa Seca? O que está na ficha agora será perdido (exporte antes se quiser guardar).'));
   $('#btn-blank').addEventListener('click', () =>
     substituir({ foto: '' }, 'Limpar a ficha inteira? O que está na ficha agora será perdido (exporte antes se quiser guardar).'));
+
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('sw.js').catch(() => { /* funciona igual, só sem modo offline */ });
+  }
 })();

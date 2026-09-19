@@ -379,6 +379,7 @@ textarea:focus { box-shadow: 0 1px 0 var(--wax); }
 .regras-corpo ul { padding-left: 1.1em; }
 .regras-corpo table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: .85rem; }
 .regras-corpo th, .regras-corpo td { padding: 4px 6px; text-align: left; border-bottom: 1px solid var(--line-soft); }
+.regras-corpo td:nth-child(2) { white-space: nowrap; }
 .regras-corpo th { font-family: 'Cinzel', Georgia, serif; font-size: .75rem; }
 
 /* ---------- ferramentas ---------- */
@@ -438,12 +439,19 @@ textarea:focus { box-shadow: 0 1px 0 var(--wax); }
 
 /* ---------- impressão ---------- */
 
+@page { size: A4; margin: 8mm; }
+
 @media print {
-  body { background: #fff; }
-  body::after, .statusbar, .tools, .rolagem, .regras, .dado, .ataque, .povo-hint, .link { display: none; }
-  .card { background: none; break-inside: avoid; }
+  body { background: #fff; font-size: 10px; line-height: 1.25; }
+  body::after, .statusbar, .tools, .rolagem, .regras, .dado, .ataque, .povo-hint, .link, .foto-vazio { display: none; }
   .page { max-width: none; padding: 0; }
-  .sheet { grid-template-columns: repeat(12, 1fr); gap: 8px; }
+  .hero { min-height: 0; padding: 0 0 6px; }
+  .hero-title { width: 55%; max-width: none; margin: 0 auto; }
+  .hero-seal { width: 60px; top: 0; right: 0; }
+  .sheet { grid-template-columns: repeat(12, 1fr); gap: 6px; }
+  .card { padding: 6px 8px 8px; background: none; break-inside: avoid; }
+  .card h2 { margin-bottom: 2px; font-size: .9rem; }
+  .card h2::after { display: none; }
   .c-id  { grid-column: 1 / -1; }
   .c-atr, .c-sta { grid-column: span 4; }
   .c-est { grid-column: span 4; grid-row: span 2; }
@@ -451,5 +459,17 @@ textarea:focus { box-shadow: 0 1px 0 var(--wax); }
   .c-equ, .c-pro, .c-inv, .c-con { grid-column: span 6; }
   .estilos { grid-template-columns: 1fr; }
   .row { min-height: 0; }
-  textarea { background-image: none; }
+  .row.est { min-height: 0; padding: 0; }
+  .row.est .mark { height: 18px; }
+  .lbl { padding-bottom: 3px; font-size: .68rem; }
+  input[type="text"], input[type="number"], textarea { padding: 2px 3px; font-size: 10px; }
+  .row.attr input { height: 20px; padding: 1px; }
+  .box { width: 16px; height: 16px; }
+  .box::after { width: 10px; height: 10px; }
+  .hab { padding: 2px 0; }
+  .hab-body .row { min-height: 0; }
+  .hab-body textarea { font-size: 10px; }
+  .foto-wrap { flex-basis: 70px; }
+  .foto { width: 70px; min-height: 0; }
+  textarea { background-image: none; border-bottom: 1px solid var(--line); }
 }
