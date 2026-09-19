@@ -24,6 +24,22 @@
     ['efeitosMagicos', 'Efeitos mágicos'],
     ['reputacao', 'Reputação'],
   ];
+  // bônus de povo, conforme "Passageiros que Podem Embarcar" no livro
+  const POVOS = [
+    { id: 'humano', nome: 'Humano', stems: ['humano'], attr: 'sorte', attrNome: 'Sorte', estilo: 'Diplomacia' },
+    { id: 'elfo', nome: 'Elfo', stems: ['elfo'], attr: 'agilidade', attrNome: 'Agilidade', estilo: 'Arqueria' },
+    { id: 'anao', nome: 'Anão', stems: ['anao', 'anoes', 'ano'], attr: 'forca', attrNome: 'Força', estilo: 'Artilharia Pesada' },
+    { id: 'ogro', nome: 'Ogro', stems: ['ogro'], attr: 'forca', attrNome: 'Força', estilo: 'Arma Pesada' },
+    { id: 'greyblood', nome: 'Greyblood', stems: ['greyblood'], attr: 'mente', attrNome: 'Mente', estilo: 'Ilusão' },
+    { id: 'goblin', nome: 'Goblin', stems: ['goblin'], attr: 'agilidade', attrNome: 'Agilidade', estilo: 'Arma Leve' },
+    { id: 'licano', nome: 'Licano', stems: ['licano'], attr: 'forca', attrNome: 'Força', estilo: 'Luta Corporal' },
+    { id: 'akhat', nome: 'Akhat', stems: ['akhat'], attr: 'agilidade', attrNome: 'Agilidade', estilo: 'Sobrevivência' },
+    { id: 'fauno', nome: 'Fauno', stems: ['fauno'], attr: 'mente', attrNome: 'Mente', estilo: 'Druidismo' },
+  ];
+  const FOTO_PADRAO = 'assets/tripa-seca.jpg';
+  const ATRIBUTOS = [['forca', 'Força'], ['agilidade', 'Agilidade'], ['mente', 'Mente'], ['sorte', 'Sorte']];
+  // níveis de dificuldade do livro, do mais alto para o mais baixo
+  const DIFICULDADES = [[25, 'quase impossível'], [20, 'muito difícil'], [16, 'difícil'], [13, 'normal'], [10, 'fácil']];
   const N_HABILIDADES = 7;
   const N_EFEITOS = 3;
   const N_INVENTARIO = 8;
@@ -32,6 +48,9 @@
   // ---------- Tripa Seca (ficha original) ----------
 
   const TRIPA_SECA = {
+    foto: FOTO_PADRAO,
+    bonusPovo: 'goblin',
+    'atq.attr': 'agilidade',
     nome: 'Tripa Seca',
     povo: 'Goblin',
     idade: '38 anos',
@@ -101,17 +120,63 @@
 
   function montar() {
     const identificacao = secao('c-id', 1, 'Identificação', `
-      ${linha('nome', 'Nome')}
-      ${linha('povo', 'Povo')}
-      ${linha('idade', 'Idade')}
+      <div class="id-top">
+        <div class="id-fields">
+          ${linha('nome', 'Nome')}
+          <label class="row"><span class="lbl">Povo</span><input data-k="povo" type="text" list="lista-povos" autocomplete="off"></label>
+          ${linha('idade', 'Idade')}
+          <p class="povo-hint" id="povo-hint" hidden>
+            <span id="povo-txt"></span>
+            <button type="button" class="btn mini" id="povo-aplicar">Aplicar bônus</button>
+          </p>
+          <datalist id="lista-povos">${POVOS.map((p) => `<option value="${p.nome}">`).join('')}</datalist>
+        </div>
+        <div class="foto-wrap">
+          <button type="button" class="foto" id="foto-btn" aria-label="Trocar foto do personagem">
+            <img id="foto-img" alt="Foto do personagem" hidden>
+            <span class="foto-vazio" id="foto-vazio">+ foto</span>
+          </button>
+          <button type="button" class="link" id="foto-remover" hidden>remover foto</button>
+          <input type="file" id="foto-arquivo" accept="image/*" hidden>
+        </div>
+      </div>
       <label class="row block"><span class="lbl">Aparência</span><textarea data-k="aparencia" rows="2"></textarea></label>
       <label class="row block"><span class="lbl">História</span><textarea data-k="historia" rows="3"></textarea></label>`);
 
     const atributos = secao('c-atr', 2, 'Atributos', `
-      ${linha('forca', 'Força', { type: 'number', cls: 'attr' })}
-      ${linha('agilidade', 'Agilidade', { type: 'number', cls: 'attr' })}
-      ${linha('mente', 'Mente', { type: 'number', cls: 'attr' })}
-      ${linha('sorte', 'Sorte', { type: 'number', cls: 'attr' })}`);
+      ${ATRIBUTOS.map(([k, nome]) => `
+      <div class="row attr">
+        <span class="lbl">${nome}</span>
+        <button type="button" class="dado" data-rolar="${k}" aria-label="Rolar d20 + ${nome}">d20</button>
+        <input data-k="${k}" type="number" autocomplete="off" aria-label="${nome}">
+      </div>`).join('')}
+      <div class="ataque">
+        <h3>Ataque e dano</h3>
+        <div class="atq-linha">
+          <label class="atq-campo">Atacar com
+            <select data-k="atq.attr">
+              ${ATRIBUTOS.map(([k, nome]) => `<option value="${k}">${nome}</option>`).join('')}
+            </select>
+          </label>
+          <label class="atq-campo">Defesa do inimigo
+            <input data-k="atq.defesa" type="number" placeholder="opcional" autocomplete="off">
+          </label>
+        </div>
+        <div class="atq-linha">
+          <label class="atq-campo">Bônus de dano
+            <input data-k="atq.bonus" type="number" placeholder="0" autocomplete="off">
+          </label>
+          <label class="atq-check">
+            ${caixa('atq.extra', 'Dano extra +1d6')}
+            <span>+1d6 extra (ex.: Golpe Traiçoeiro)</span>
+          </label>
+        </div>
+        <div class="atq-botoes">
+          <button type="button" class="btn primary mini" id="btn-atacar">Atacar</button>
+          <button type="button" class="btn mini" data-acao="dano">Só dano</button>
+          <button type="button" class="btn mini" data-acao="d20">d20 puro</button>
+        </div>
+      </div>`);
 
     const statusSec = secao('c-sta', 3, 'Status', `
       ${status('vida', 'Vida')}
@@ -162,6 +227,8 @@
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
+  $('#ficha').innerHTML = montar();
+
   let state = {};
   let saveTimer = null;
   const statusEl = $('#status');
@@ -211,10 +278,12 @@
     $$('[data-k]').forEach((el) => {
       const v = state[el.dataset.k] || '';
       if (el.type === 'checkbox') el.checked = v === '1';
-      else el.value = v;
+      else el.value = v || (el.tagName === 'SELECT' ? el.options[0].value : '');
     });
     ajustarAlturas();
     atualizarTitulo();
+    renderFoto();
+    renderPovo();
   }
 
   function atualizarTitulo() {
@@ -227,6 +296,182 @@
       ta.style.height = 'auto';
       ta.style.height = `${ta.scrollHeight}px`;
     });
+  }
+
+  // ---------- foto ----------
+
+  const fotoBtn = $('#foto-btn');
+  const fotoImg = $('#foto-img');
+  const fotoVazio = $('#foto-vazio');
+  const fotoRemover = $('#foto-remover');
+
+  function fotoAtual() {
+    // ficha antiga sem o campo "foto" mostra a foto padrão do Tripa Seca
+    return 'foto' in state ? state.foto : FOTO_PADRAO;
+  }
+
+  function renderFoto() {
+    const src = fotoAtual();
+    fotoImg.hidden = !src;
+    fotoVazio.hidden = !!src;
+    fotoRemover.hidden = !src;
+    if (src) {
+      if (fotoImg.getAttribute('src') !== src) fotoImg.setAttribute('src', src);
+      fotoImg.classList.toggle('padrao', src === FOTO_PADRAO);
+    } else {
+      fotoImg.removeAttribute('src');
+    }
+  }
+
+  function reduzirImagem(arquivo, max = 480) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(arquivo);
+      const img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * k);
+        c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        resolve(c.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('imagem')); };
+      img.src = url;
+    });
+  }
+
+  // ---------- povo e bônus ----------
+
+  const normalizar = (t) => (t || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+  function povoAtual() {
+    const n = normalizar(state.povo);
+    if (!n) return null;
+    return POVOS.find((p) => p.stems.some((st) => n === st || n === `${st}s`)) || null;
+  }
+
+  function renderPovo() {
+    const p = povoAtual();
+    const hint = $('#povo-hint');
+    hint.hidden = !p;
+    if (!p) return;
+    $('#povo-txt').textContent = `Bônus de ${p.nome}: +1 ${p.attrNome}, estilo +1 ${p.estilo}.`;
+    const btn = $('#povo-aplicar');
+    const feito = state.bonusPovo === p.id;
+    btn.disabled = feito;
+    btn.textContent = feito ? 'Bônus já aplicado' : 'Aplicar bônus';
+  }
+
+  function aplicarBonusPovo() {
+    const p = povoAtual();
+    if (!p || state.bonusPovo === p.id) return;
+    if (!confirm(`Somar +1 em ${p.attrNome} e +1 em ${p.estilo}? Faça isso só uma vez por ficha.`)) return;
+    state[p.attr] = String((parseInt(state[p.attr], 10) || 0) + 1);
+    const i = ESTILOS.indexOf(p.estilo);
+    const atual = (state[`est.${i}`] || '').trim();
+    const num = atual.match(/^\+?(\d+)$/);
+    state[`est.${i}`] = num ? `+${parseInt(num[1], 10) + 1}` : (atual ? `${atual} +1` : '+1');
+    state.bonusPovo = p.id;
+    aplicar();
+    salvarAgora();
+  }
+
+  // ---------- rolagens ----------
+
+  const rolagemEl = $('#rolagem');
+  const dado = (lados) => {
+    const buf = new Uint32Array(1);
+    crypto.getRandomValues(buf);
+    return (buf[0] % lados) + 1;
+  };
+  const inteiro = (v) => parseInt(v, 10) || 0;
+  const comSinal = (n) => (n < 0 ? `− ${Math.abs(n)}` : `+ ${n}`);
+
+  function mostrarRolagem(titulo, principal, detalhes = []) {
+    rolagemEl.replaceChildren();
+    const mk = (tag, cls, txt) => {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      e.textContent = txt;
+      return e;
+    };
+    rolagemEl.append(mk('div', 'rol-titulo', titulo), mk('div', 'rol-total', principal));
+    detalhes.forEach(([cls, txt]) => rolagemEl.append(mk('div', cls, txt)));
+    rolagemEl.append(mk('div', 'rol-fechar', 'toque para fechar'));
+    rolagemEl.hidden = false;
+  }
+
+  const notaCritica = (r) => {
+    if (r === 20) return [['rol-crit', '20 natural: sucesso crítico!']];
+    if (r === 1) return [['rol-falha', '1 natural: falha crítica!']];
+    return [];
+  };
+
+  // dano = d6 (+ 1d6 extra, se marcado) + bônus fixo
+  function calcularDano() {
+    const partes = [dado(6)];
+    if (state['atq.extra'] === '1') partes.push(dado(6));
+    const bonus = inteiro(state['atq.bonus']);
+    const total = partes.reduce((a, b) => a + b, 0) + bonus;
+    const txt = partes.map((d, i) => (i ? `+ d6 extra (${d})` : `d6 (${d})`)).join(' ')
+      + (bonus ? ` ${comSinal(bonus)}` : '');
+    return { total, txt };
+  }
+
+  function rolarAtributo(chave) {
+    const nome = ATRIBUTOS.find(([k]) => k === chave)[1];
+    const bonus = inteiro(state[chave]);
+    const r = dado(20);
+    const total = r + bonus;
+    const alcancada = DIFICULDADES.find(([min]) => total >= min);
+    const det = [
+      ...notaCritica(r),
+      ['rol-info', alcancada
+        ? `Vence dificuldade até ${alcancada[1]} (${alcancada[0]}).`
+        : 'Abaixo de fácil (10).'],
+    ];
+    mostrarRolagem(`${nome}: d20 (${r}) ${comSinal(bonus)}`, `= ${total}`, det);
+  }
+
+  function atacar() {
+    const chave = state['atq.attr'] || ATRIBUTOS[0][0];
+    const nome = ATRIBUTOS.find(([k]) => k === chave)[1];
+    const bonus = inteiro(state[chave]);
+    const r = dado(20);
+    const total = r + bonus;
+    const titulo = `Ataque com ${nome}: d20 (${r}) ${comSinal(bonus)}`;
+    const temDefesa = String(state['atq.defesa'] || '').trim() !== '';
+    const defesa = inteiro(state['atq.defesa']);
+    const det = notaCritica(r);
+    let acertou;
+    if (r === 20) acertou = true;
+    else if (r === 1) acertou = false;
+    else if (temDefesa) acertou = total >= defesa;
+    if (!temDefesa && r !== 20 && r !== 1) {
+      det.push(['rol-info', 'Compare com a Defesa do inimigo. Se acertar, role o dano em "Só dano".']);
+      mostrarRolagem(titulo, `= ${total}`, det);
+      return;
+    }
+    if (acertou) {
+      const d = calcularDano();
+      det.push(['rol-acerto', temDefesa ? `Acertou! (${total} contra Defesa ${defesa})` : 'Acertou!']);
+      det.push(['rol-dano', `Dano: ${d.total}`]);
+      det.push(['rol-info', d.txt]);
+    } else {
+      det.push(['rol-falha', temDefesa && r !== 1 ? `Errou. (${total} contra Defesa ${defesa})` : 'Errou.']);
+    }
+    mostrarRolagem(titulo, `= ${total}`, det);
+  }
+
+  function soDano() {
+    const d = calcularDano();
+    mostrarRolagem('Dano', String(d.total), [['rol-info', d.txt]]);
+  }
+
+  function d20Puro() {
+    const r = dado(20);
+    mostrarRolagem('d20 puro', String(r), notaCritica(r));
   }
 
   // ---------- ações ----------
@@ -274,7 +519,6 @@
 
   // ---------- início ----------
 
-  $('#ficha').innerHTML = montar();
   state = carregar();
   aplicar();
   setStatus('Pronta para editar');
@@ -288,6 +532,7 @@
       el.style.height = `${el.scrollHeight}px`;
     }
     if (el.dataset.k === 'nome') atualizarTitulo();
+    if (el.dataset.k === 'povo') renderPovo();
     agendarSalvar();
   });
 
@@ -303,6 +548,36 @@
   });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustarAlturas);
 
+  fotoBtn.addEventListener('click', () => $('#foto-arquivo').click());
+  $('#foto-arquivo').addEventListener('change', async (e) => {
+    const f = e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    try {
+      state.foto = await reduzirImagem(f);
+      renderFoto();
+      agendarSalvar();
+    } catch (_) {
+      alert('Não consegui abrir essa imagem.');
+    }
+  });
+  fotoRemover.addEventListener('click', () => {
+    state.foto = '';
+    renderFoto();
+    agendarSalvar();
+  });
+  $('#povo-aplicar').addEventListener('click', aplicarBonusPovo);
+
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-rolar], [data-acao], #btn-atacar');
+    if (!b) return;
+    if (b.dataset.rolar) rolarAtributo(b.dataset.rolar);
+    else if (b.id === 'btn-atacar') atacar();
+    else if (b.dataset.acao === 'dano') soDano();
+    else if (b.dataset.acao === 'd20') d20Puro();
+  });
+  rolagemEl.addEventListener('click', () => { rolagemEl.hidden = true; });
+
   $('#btn-export').addEventListener('click', exportar);
   $('#btn-import').addEventListener('click', () => $('#file-import').click());
   $('#file-import').addEventListener('change', (e) => {
@@ -314,5 +589,5 @@
   $('#btn-default').addEventListener('click', () =>
     substituir({ ...TRIPA_SECA }, 'Voltar para a ficha original do Tripa Seca? O que está na ficha agora será perdido (exporte antes se quiser guardar).'));
   $('#btn-blank').addEventListener('click', () =>
-    substituir({}, 'Limpar a ficha inteira? O que está na ficha agora será perdido (exporte antes se quiser guardar).'));
+    substituir({ foto: '' }, 'Limpar a ficha inteira? O que está na ficha agora será perdido (exporte antes se quiser guardar).'));
 })();

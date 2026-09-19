@@ -14,6 +14,7 @@
 * { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; }
+[hidden] { display: none !important; }
 
 body {
   margin: 0;
@@ -277,6 +278,109 @@ textarea:focus { box-shadow: 0 1px 0 var(--wax); }
 .row.numbered { align-items: flex-start; }
 .row.numbered .lbl { padding-top: 10px; padding-bottom: 0; width: 1.4em; font-size: .9rem; }
 
+/* ---------- identificação: foto e povo ---------- */
+
+.id-top { display: flex; gap: 12px; align-items: flex-start; }
+.id-fields { flex: 1; min-width: 0; }
+.foto-wrap { flex: 0 0 104px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 4px; }
+.foto {
+  position: relative;
+  width: 104px;
+  min-height: 120px;
+  padding: 4px;
+  display: grid;
+  place-items: center;
+  background: rgba(247, 236, 205, .35);
+  border: 1.5px solid var(--ink);
+  outline: 1px solid var(--line-soft);
+  outline-offset: -4px;
+  cursor: pointer;
+  font: inherit;
+}
+.foto img { display: block; width: 100%; height: auto; max-height: 180px; object-fit: cover; }
+.foto img.padrao { object-fit: contain; mix-blend-mode: multiply; } /* o branco da imagem some no pergaminho */
+.foto-vazio { font-family: 'Cinzel', Georgia, serif; font-size: .75rem; color: var(--ink-soft); }
+.link { padding: 6px; font: inherit; font-size: .72rem; color: var(--wax); background: none; border: 0; text-decoration: underline; cursor: pointer; }
+.povo-hint { margin: 4px 0 0; padding: 6px 8px; font-size: .8rem; background: rgba(122, 29, 22, .07); border-left: 3px solid var(--wax); }
+.povo-hint .btn { margin-top: 4px; }
+.btn:disabled { opacity: .55; cursor: default; }
+
+/* ---------- rolagens ---------- */
+
+.btn.mini { min-height: 40px; padding: 6px 10px; font-size: .72rem; }
+.dado {
+  flex: none;
+  min-width: 48px;
+  min-height: 40px;
+  margin-bottom: 2px;
+  font-family: 'Cinzel', Georgia, serif;
+  font-weight: 700;
+  font-size: .75rem;
+  color: #f6e9c8;
+  background: var(--wax);
+  border: 1.5px solid var(--wax-dark);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.dado:active { transform: translateY(1px); }
+
+.ataque { margin-top: 12px; padding-top: 4px; border-top: 1px solid var(--line-soft); }
+.atq-linha { display: flex; gap: 10px; margin-top: 6px; }
+.atq-campo { flex: 1; min-width: 0; display: flex; flex-direction: column; font-family: 'Cinzel', Georgia, serif; font-weight: 600; font-size: .7rem; letter-spacing: .03em; }
+.atq-campo select {
+  margin: 0;
+  padding: 8px 4px 5px;
+  font: inherit;
+  font-family: 'Lora', Georgia, serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #1b120a;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+}
+.atq-check { flex: 1; display: flex; align-items: center; gap: 8px; font-size: .78rem; line-height: 1.25; }
+.atq-botoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+.rolagem {
+  position: fixed;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 60;
+  width: min(92vw, 360px);
+  padding: 12px 14px;
+  text-align: center;
+  color: var(--ink);
+  background: #eadab0;
+  border: 2px solid var(--wax);
+  outline: 1px solid var(--line);
+  outline-offset: -6px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .45);
+  cursor: pointer;
+}
+.rolagem[hidden] { display: none; }
+.rol-titulo { font-family: 'Cinzel', Georgia, serif; font-weight: 600; font-size: .85rem; }
+.rol-total { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 2.4rem; line-height: 1.15; color: var(--wax); }
+.rol-info { font-size: .85rem; }
+.rol-crit, .rol-acerto { font-weight: 600; color: #1f5a2b; }
+.rol-falha { font-weight: 600; color: var(--wax); }
+.rol-dano { font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 1.5rem; color: var(--wax); }
+.rol-fechar { margin-top: 4px; font-size: .65rem; color: var(--ink-soft); }
+
+/* ---------- regras rápidas ---------- */
+
+.regras { margin-top: 14px; padding: 0; }
+.regras summary { padding: 14px; font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 1rem; letter-spacing: .05em; text-align: center; cursor: pointer; }
+.regras-corpo { padding: 0 16px 16px; font-size: .92rem; }
+.regras-corpo h3 { text-align: left; margin: 12px 0 2px; }
+.regras-corpo p, .regras-corpo ul { margin: 2px 0; }
+.regras-corpo ul { padding-left: 1.1em; }
+.regras-corpo table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: .85rem; }
+.regras-corpo th, .regras-corpo td { padding: 4px 6px; text-align: left; border-bottom: 1px solid var(--line-soft); }
+.regras-corpo th { font-family: 'Cinzel', Georgia, serif; font-size: .75rem; }
+
 /* ---------- ferramentas ---------- */
 
 .tools { margin-top: 22px; text-align: center; }
@@ -336,7 +440,7 @@ textarea:focus { box-shadow: 0 1px 0 var(--wax); }
 
 @media print {
   body { background: #fff; }
-  body::after, .statusbar, .tools { display: none; }
+  body::after, .statusbar, .tools, .rolagem, .regras, .dado, .ataque, .povo-hint, .link { display: none; }
   .card { background: none; break-inside: avoid; }
   .page { max-width: none; padding: 0; }
   .sheet { grid-template-columns: repeat(12, 1fr); gap: 8px; }

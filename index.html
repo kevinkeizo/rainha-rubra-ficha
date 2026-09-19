@@ -30,6 +30,44 @@
       <noscript><p class="card">Esta ficha precisa de JavaScript para funcionar.</p></noscript>
     </main>
 
+    <details class="card regras">
+      <summary>Regras rápidas do livro</summary>
+      <div class="regras-corpo">
+        <h3>Testes</h3>
+        <p>Sempre que tentar algo difícil, role <strong>1d20 + um atributo</strong>.</p>
+        <h3>Atributos</h3>
+        <ul>
+          <li><strong>Força</strong>: poder físico e armas pesadas.</li>
+          <li><strong>Agilidade</strong>: velocidade, furtividade, arco e esquiva.</li>
+          <li><strong>Mente</strong>: magia, conhecimento, percepção e resistência mental.</li>
+          <li><strong>Sorte</strong>: destino, acaso, carisma e sobrevivência improvável.</li>
+        </ul>
+        <h3>Dificuldade</h3>
+        <p>10 fácil · 13 normal · 16 difícil · 20 muito difícil · 25 quase impossível.</p>
+        <h3>Combate</h3>
+        <p>Role <strong>1d20 + atributo</strong> contra a <strong>Defesa</strong> do inimigo. Se acertar, o dano é <strong>d6</strong>.</p>
+        <h3>Turno</h3>
+        <p>1 Movimento, 1 Ação Principal e 1 Ação Rápida. Uma vez por rodada, 1 Reação para bloquear, esquivar, proteger alguém ou resistir a algo.</p>
+        <h3>Críticos</h3>
+        <p>20 natural é sucesso crítico. 1 natural é falha crítica.</p>
+        <h3>Magia e Corrupção</h3>
+        <p>Magia é poderosa, mas perigosa. Falhas mágicas podem gerar Corrupção.</p>
+        <h3>Bônus dos povos</h3>
+        <table>
+          <tr><th>Povo</th><th>Atributo</th><th>Estilo</th></tr>
+          <tr><td>Humano</td><td>+1 Sorte</td><td>+1 Diplomacia</td></tr>
+          <tr><td>Elfo</td><td>+1 Agilidade</td><td>+1 Arqueria</td></tr>
+          <tr><td>Anão</td><td>+1 Força</td><td>+1 Artilharia Pesada</td></tr>
+          <tr><td>Ogro</td><td>+1 Força</td><td>+1 Arma Pesada</td></tr>
+          <tr><td>Greyblood</td><td>+1 Mente</td><td>+1 Ilusão</td></tr>
+          <tr><td>Goblin</td><td>+1 Agilidade</td><td>+1 Arma Leve</td></tr>
+          <tr><td>Licano</td><td>+1 Força</td><td>+1 Luta Corporal</td></tr>
+          <tr><td>Akhat</td><td>+1 Agilidade</td><td>+1 Sobrevivência</td></tr>
+          <tr><td>Fauno</td><td>+1 Mente</td><td>+1 Druidismo</td></tr>
+        </table>
+      </div>
+    </details>
+
     <section class="tools" aria-label="Ferramentas da ficha">
       <p class="tools-note">
         A ficha é salva automaticamente <strong>neste aparelho</strong>.
@@ -47,6 +85,8 @@
 
     <footer class="foot">A Rainha Rubra parte. Eldharain aguarda.</footer>
   </div>
+
+  <div id="rolagem" class="rolagem" role="status" aria-live="polite" hidden></div>
 
   <script src="app.js"></script>
 </body>
