@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#7a1d16">
+  <title>Ficha do Tripa Seca — Rainha Rubra</title>
+  <meta name="description" content="Ficha editável de personagem da campanha Rainha Rubra. Feita para usar no celular.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="statusbar" role="status" aria-live="polite">
+    <span id="status">Carregando…</span>
+  </div>
+
+  <div class="page">
+    <header class="hero">
+      <img class="hero-title" src="assets/titulo.png" alt="Admissão na Tripulação da Rainha Rubra" width="600" height="141">
+      <img class="hero-seal" src="assets/selo.png" alt="" width="211" height="276">
+    </header>
+
+    <main id="ficha" class="sheet">
+      <noscript><p class="card">Esta ficha precisa de JavaScript para funcionar.</p></noscript>
+    </main>
+
+    <section class="tools" aria-label="Ferramentas da ficha">
+      <p class="tools-note">
+        A ficha é salva automaticamente <strong>neste aparelho</strong>.
+        Para levar para outro celular ou guardar uma cópia, use Exportar.
+      </p>
+      <div class="tools-btns">
+        <button type="button" id="btn-export" class="btn primary">Exportar cópia</button>
+        <button type="button" id="btn-import" class="btn">Importar cópia</button>
+        <button type="button" id="btn-print" class="btn">Imprimir / PDF</button>
+        <button type="button" id="btn-default" class="btn">Restaurar Tripa Seca</button>
+        <button type="button" id="btn-blank" class="btn danger">Ficha em branco</button>
+      </div>
+      <input type="file" id="file-import" accept="application/json,.json" hidden>
+    </section>
+
+    <footer class="foot">A Rainha Rubra parte. Eldharain aguarda.</footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
