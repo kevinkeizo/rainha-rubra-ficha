@@ -46,17 +46,33 @@
   const N_INVENTARIO = 8;
   const N_CAIXAS = 5;
 
-  // ---------- Tripa Seca (ficha original) ----------
+  // história completa (aparece no "Saiba mais")
+  const HISTORIA_COMPLETA = [
+    'O Tripa Seca é como é conhecido um dos maiores ladinos da guilda dos Dedos Cinzas, uma guilda de ladrões lendários. Muitos deles conseguem ir e ver situações únicas e partem em busca dos tesouros de Eldharain, porém não voltam.',
+    'Tripa Seca não era um tolo: não jogava para perder e não se arriscaria. Porém um trabalho inteligente poderia ser possível. Um dia antes, deveria ir até o cais e então se infiltrar no cargueiro da Rainha Rubra, onde grandes prêmios o aguardariam.',
+    'Porém um dos amigos da toca o chamou para uma noite de farra algumas horas antes. Em seu relógio tudo estava no tempo, e alguns drinks não atrapalhariam seu processo. Ele o fez, e após 19 garrafas estava dentro do prazo, em um dos barris sendo transportado para a Rainha Rubra. Um golpe de mestre! Porém sua cabeça e seus olhos pesavam. Daria tempo de um breve descanso, e então, após sair do barril, encher os bolsos com as joias dos sonhadores viajantes da nova vida no continente, beber mais e viver como um rei por algumas semanas. Era com isso que sonhava, antes de acordar em alto-mar dentro da Rainha Rubra, rumo à nova vida no continente!!',
+  ].join('\n\n');
+
+  // valores da primeira versão da ficha, para atualizar sem apagar o que a pessoa editou
+  const ANTIGO = {
+    nome: 'Tripa Seca',
+    aparencia: "Baixinho, cabeçudo e careca. Orelhas gigantes com argolas, a esquerda cortada em \"V\". Cicatriz na bochecha, manto remendado cheio de bolsos. Anda descalço.",
+    historia: "Ex-ladrão da Guilda dos Dedos Cinzentos, expulso com a marca de traidor ao tentar pegar sua parte. Sem gostar de trabalhar com ninguém, virou mendigo de pão duro, até saber do tesouro da guilda a bordo da Rainha Rubra.",
+  };
+
+  // ---------- ficha original ----------
 
   const TRIPA_SECA = {
     foto: FOTO_PADRAO,
     bonusPovo: 'goblin',
     'atq.attr': 'agilidade',
-    nome: 'Tripa Seca',
+    nome: 'Fineias o Tripa Seca',
+    jogador: 'Keizo',
     povo: 'Goblin',
     idade: '38 anos',
-    aparencia: 'Baixinho, cabeçudo e careca. Orelhas gigantes com argolas, a esquerda cortada em "V". Cicatriz na bochecha, manto remendado cheio de bolsos. Anda descalço.',
-    historia: 'Ex-ladrão da Guilda dos Dedos Cinzentos, expulso com a marca de traidor ao tentar pegar sua parte. Sem gostar de trabalhar com ninguém, virou mendigo de pão duro, até saber do tesouro da guilda a bordo da Rainha Rubra.',
+    aparencia: 'Goblin baixo com sorriso malicioso, roupas de couro e capuzes com ferramentas de ladrão e careca brilhante.',
+    historia: 'Um dos maiores ladinos da guilda dos Dedos Cinzas. Foi se infiltrar em um barril no cargueiro da Rainha Rubra para roubar as joias dos viajantes, mas, depois de 19 garrafas, dormiu no barril e acordou em alto-mar, rumo ao continente.',
+    historiaCompleta: HISTORIA_COMPLETA,
     forca: '0', agilidade: '3', mente: '1', sorte: '2',
     vida: '8', defesa: '12', mana: '2',
     'est.1': '+1', 'est.3': 'X', 'est.15': 'X', 'est.19': 'X', 'est.20': 'X', 'est.21': 'X',
@@ -124,6 +140,7 @@
       <div class="id-top">
         <div class="id-fields">
           ${linha('nome', 'Nome')}
+          ${linha('jogador', 'Jogador')}
           <label class="row"><span class="lbl">Povo</span><input data-k="povo" type="text" list="lista-povos" autocomplete="off"></label>
           ${linha('idade', 'Idade')}
           <p class="povo-hint" id="povo-hint" hidden>
@@ -142,7 +159,8 @@
         </div>
       </div>
       <label class="row block"><span class="lbl">Aparência</span><textarea data-k="aparencia" rows="2"></textarea></label>
-      <label class="row block"><span class="lbl">História</span><textarea data-k="historia" rows="3"></textarea></label>`);
+      <label class="row block"><span class="lbl">História</span><textarea data-k="historia" rows="3"></textarea></label>
+      <div class="saiba-linha"><button type="button" class="btn mini" id="btn-saiba">Saiba mais</button></div>`);
 
     const atributos = secao('c-atr', 2, 'Atributos', `
       ${ATRIBUTOS.map(([k, nome]) => `
@@ -261,6 +279,18 @@
     return limpo;
   }
 
+  // ficha salva na versão anterior: traz os dados novos sem apagar o que foi editado
+  function migrar(st) {
+    if ('historiaCompleta' in st || st.nome === undefined) return st;
+    const novo = { ...st };
+    for (const k of ['nome', 'aparencia', 'historia']) {
+      if (novo[k] === ANTIGO[k]) novo[k] = TRIPA_SECA[k];
+    }
+    if (novo.jogador === undefined) novo.jogador = TRIPA_SECA.jogador;
+    if (novo.historia === TRIPA_SECA.historia) novo.historiaCompleta = TRIPA_SECA.historiaCompleta;
+    return novo;
+  }
+
   function salvarAgora() {
     clearTimeout(saveTimer);
     saveTimer = null;
@@ -297,7 +327,7 @@
   }
 
   function ajustarAlturas() {
-    $$('textarea').forEach((ta) => {
+    $$('#ficha textarea').forEach((ta) => {
       ta.style.height = 'auto';
       ta.style.height = `${ta.scrollHeight}px`;
     });
@@ -479,6 +509,52 @@
     mostrarRolagem('d20 puro', String(r), notaCritica(r));
   }
 
+  // ---------- história completa ----------
+
+  const modal = $('#modal-hist');
+  const histLeitura = $('#hist-leitura');
+  const histEdicao = $('#hist-edicao');
+  const histEditar = $('#hist-editar');
+
+  function renderLeitura() {
+    histLeitura.replaceChildren();
+    const texto = (state.historiaCompleta || '').trim();
+    if (!texto) {
+      const p = document.createElement('p');
+      p.className = 'vazio';
+      p.textContent = 'Ainda não tem história completa. Toque em Editar para escrever.';
+      histLeitura.append(p);
+      return;
+    }
+    texto.split(/\n{2,}/).forEach((par) => {
+      const p = document.createElement('p');
+      p.textContent = par;
+      histLeitura.append(p);
+    });
+  }
+
+  function modoEdicao(ligado) {
+    histEdicao.hidden = !ligado;
+    histLeitura.hidden = ligado;
+    histEditar.textContent = ligado ? 'Pronto' : 'Editar';
+    if (ligado) histEdicao.focus();
+    else renderLeitura();
+  }
+
+  function abrirHistoria() {
+    $('#hist-titulo').textContent = state.nome ? `A história de ${state.nome.trim()}` : 'A história';
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    modoEdicao(!(state.historiaCompleta || '').trim());
+    $('#modal-hist .modal-painel').scrollTop = 0;
+  }
+
+  function fecharHistoria() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    $('#btn-saiba').focus();
+  }
+
   // ---------- ações ----------
 
   function exportar() {
@@ -546,7 +622,7 @@
 
   // ---------- início ----------
 
-  state = carregar();
+  state = migrar(carregar());
   aplicar();
   setStatus('Pronta para editar');
 
@@ -554,7 +630,7 @@
     const el = e.target;
     if (!el.dataset || !el.dataset.k) return;
     state[el.dataset.k] = el.type === 'checkbox' ? (el.checked ? '1' : '') : el.value;
-    if (el.tagName === 'TEXTAREA') {
+    if (el.tagName === 'TEXTAREA' && el.closest('#ficha')) {
       el.style.height = 'auto';
       el.style.height = `${el.scrollHeight}px`;
     }
@@ -573,7 +649,12 @@
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(ajustarAlturas, 150);
   });
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(ajustarAlturas);
+  // as fontes chegam depois do primeiro desenho e mudam a quebra de linha: mede de novo quando terminam
+  if (document.fonts) {
+    document.fonts.ready.then(ajustarAlturas);
+    document.fonts.addEventListener('loadingdone', ajustarAlturas);
+  }
+  window.addEventListener('load', ajustarAlturas);
 
   fotoBtn.addEventListener('click', () => $('#foto-arquivo').click());
   $('#foto-arquivo').addEventListener('change', async (e) => {
@@ -604,6 +685,12 @@
     else if (b.dataset.acao === 'd20') d20Puro();
   });
   rolagemEl.addEventListener('click', () => { rolagemEl.hidden = true; });
+
+  $('#btn-saiba').addEventListener('click', abrirHistoria);
+  $('#hist-fechar').addEventListener('click', fecharHistoria);
+  histEditar.addEventListener('click', () => modoEdicao(histEdicao.hidden));
+  modal.addEventListener('click', (e) => { if (e.target === modal) fecharHistoria(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) fecharHistoria(); });
 
   $('#btn-undo').hidden = !localStorage.getItem(BACKUP_KEY);
   $('#btn-undo').addEventListener('click', desfazerTroca);

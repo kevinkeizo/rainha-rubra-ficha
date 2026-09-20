@@ -88,6 +88,18 @@
     <footer class="foot">A Rainha Rubra parte. Eldharain aguarda.</footer>
   </div>
 
+  <div id="modal-hist" class="modal" role="dialog" aria-modal="true" aria-labelledby="hist-titulo" hidden>
+    <div class="modal-painel">
+      <h2 id="hist-titulo">A história</h2>
+      <div id="hist-leitura" class="hist-leitura"></div>
+      <textarea id="hist-edicao" data-k="historiaCompleta" rows="14" hidden aria-label="História completa"></textarea>
+      <div class="modal-botoes">
+        <button type="button" class="btn" id="hist-editar">Editar</button>
+        <button type="button" class="btn primary" id="hist-fechar">Fechar</button>
+      </div>
+    </div>
+  </div>
+
   <div id="rolagem" class="rolagem" role="status" aria-live="polite" hidden></div>
 
   <script src="app.js"></script>
